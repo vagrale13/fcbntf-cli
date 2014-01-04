@@ -1,0 +1,85 @@
+#!/bin/bash
+
+# Facebook Notifications-cli v0.1 04-01-2014
+# This script created by vagrale13 (vagrale@gmail.com)
+
+user=`whoami`
+date=$(date +'%m/%d')
+resolution=$(xrandr | grep "current" | awk -F "current " '{print $2}' | cut -c-4)
+position=$(echo $resolution/3 | bc)
+auth=$(fbcmd WHOAMI | cut -c13-)
+id=$(fbcmd WHOAMI | cut -c-10)
+mes=$(fbcmd NOTIFY | grep MESSAGES_UNREAD | grep -oE "[[:digit:]]{1,}")
+pok=$(fbcmd NOTIFY | grep POKES | grep -oE "[[:digit:]]{1,}")
+not=$(fbcmd NOTICES unread | grep -c :title)
+req=$(fbcmd NOTIFY | grep FRIEND_REQUESTS | grep -oE "[[:digit:]]{1,}")
+fre=$(fbcmd FONLINE | grep -c "active")
+fre_idle=$(fbcmd FONLINE | grep -c "idle")
+bday=$(fbcmd FINFO birthday_date | grep -c "$date")
+bdaynames=$(fbcmd FINFO birthday_date | grep "$date" | awk -F "$date" '{print $1}')
+
+echo "" > /home/$user/.fcbntf-cli/notifications.txt
+
+echo " ############################################### " >> /home/$user/.fcbntf-cli/notifications.txt
+echo "#  _____    _     _   _ _    __            _ _  #" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "# |  ___|__| |__ | \ | | |_ / _|       ___| (_) #" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "# | |_ / __| '_ \|  \| | __| |_ _____ / __| | | #" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "# |  _| (__| |_) | |\  | |_|  _|_____| (__| | | #" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "# |_|  \___|_.__/|_| \_|\__|_|        \___|_|_| #" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "#                                               #" >> /home/$user/.fcbntf-cli/notifications.txt
+echo " ############################################### " >> /home/$user/.fcbntf-cli/notifications.txt
+echo "" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "Πληροφορίες για $auth" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "ID: $id" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "Σελίδα: https://www.facebook.com/$id" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "___________________________________________" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "" >> /home/$user/.fcbntf-cli/notifications.txt
+if [ "$mes" = "1" ]; then
+echo "Έχετε $mes νέο μηνύμα" >> /home/$user/.fcbntf-cli/notifications.txt
+else
+echo "Έχετε $mes νέα μηνύματα" >> /home/$user/.fcbntf-cli/notifications.txt
+fi
+if [ "$pok" = "1" ]; then
+echo "Έχετε $pok νέο σκούντιγμα" >> /home/$user/.fcbntf-cli/notifications.txt
+else
+echo "Έχετε $pok νέα σκουντίγματα" >> /home/$user/.fcbntf-cli/notifications.txt
+fi
+if [ "$not" = "1" ]; then
+echo "Έχετε $not νέα ειδοποίηση" >> /home/$user/.fcbntf-cli/notifications.txt
+else
+echo "Έχετε $not νέες ειδοποιήσεις" >> /home/$user/.fcbntf-cli/notifications.txt
+fi
+if [ "$req" = "1" ]; then
+echo "Έχετε $req αίτημα φίλου" >> /home/$user/.fcbntf-cli/notifications.txt
+else
+echo "Έχετε $req αιτήματα φίλων" >> /home/$user/.fcbntf-cli/notifications.txt
+fi
+if [ "$bday" = "1" ]; then
+echo "Είναι $bday φίλη/ος που έχει γενέθλια σήμερα" >> /home/$user/.fcbntf-cli/notifications.txt
+else
+echo "Είναι $bday φίλοι που έχουν γενέθλια σήμερα" >> /home/$user/.fcbntf-cli/notifications.txt
+fi
+echo "Είναι $fre φίλοι Online και $fre_idle φίλοι αδρανείς" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "___________________________________________" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "" >> /home/$user/.fcbntf-cli/notifications.txt
+
+if [ "$bdaynames" = "0" ]; then
+:
+else
+echo "- - - - - - - - - - - - - - - - - -" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "- Φίλοι που έχουν γενέθλια σήμερα -" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "- - - - - - - - - - - - - - - - - -" >> /home/$user/.fcbntf-cli/notifications.txt
+fbcmd FINFO birthday_date | grep "$date" | awk -F "$date" '{print $1}'  >> /home/$user/.fcbntf-cli/notifications.txt
+fi
+
+echo "" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "----------------" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "- Φίλοι Online -" >> /home/$user/.fcbntf-cli/notifications.txt
+echo "----------------" >> /home/$user/.fcbntf-cli/notifications.txt
+
+fbcmd FONLINE | grep "active" | awk -F " active" '{print $1}' >> /home/$user/.fcbntf-cli/notifications.txt
+
+cd $HOME
+clear
+exec xterm -title "Facebook Notifications-cli" -fn 7x13 -fa "Liberation Mono:size=11:antialias=false" -geometry 80x25+$position+100 -bg black -fg "#66B3FF" -e "cat /home/$user/.fcbntf-cli/notifications.txt; exec bash"
